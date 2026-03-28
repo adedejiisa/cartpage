@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Cart • Sanni</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary:    #0A3D2A;
+      --secondary:  #C36A4F;
+      --accent:     #D4AF37;
+      --neutral:    #F9F6F2;
+      --surface:    #FFFFFF;
+      --text:       #1A1A1A;
+      --text-light: #5C5C5C;
+      --border:     #E5DFD9;
+      --error:      #C44141;
+      --success:    #2E8B57;
+      --shadow-sm:  0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md:  0 4px 18px rgba(0,0,0,0.10);
+      --radius:     12px;
+      --transition: all 0.2s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--neutral);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 1.1rem 1rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    h1 {
+      font-size: clamp(1.7rem, 5vw, 2.2rem);
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    /* ─── Empty state ─── */
+    .empty-state {
+      text-align: center;
+      padding: 8rem 1rem 5rem;
+      color: var(--text-light);
+    }
+
+    .empty-state h2 {
+      font-size: 1.7rem;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+      font-size: 1.05rem;
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.8rem 1.9rem;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      border-radius: var(--radius);
+      text-decoration: none;
+      transition: var(--transition);
+      min-height: 48px;
+    }
+
+    .btn:hover {
+      background: var(--secondary);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(195,106,79,0.25);
+    }
+
+    /* ─── Cart items ─── */
+    .cart-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .cart-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: grid;
+      grid-template-columns: 90px 1fr auto;
+      gap: 1.25rem;
+      align-items: center;
+      transition: var(--transition);
+    }
+
+    .cart-item:hover {
+      box-shadow: var(--shadow-md);
+      border-color: #d9d0c7;
+    }
+
+    .item-image {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #fdfcfb;
+      border: 1px solid #f0ece6;
+    }
+
+    .item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .item-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .item-price {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--error);
+    }
+
+    .quantity-control {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: white;
+      margin: 0.6rem 0;
+    }
+
+    .quantity-btn {
+      width: 38px;
+      height: 38px;
+      background: transparent;
+      border: none;
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .quantity-btn:hover {
+      background: #f8f5f2;
+    }
+
+    .quantity-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .quantity-display {
+      width: 54px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.05rem;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    .remove-btn {
+      color: var(--error);
+      background: none;
+      border: 1px solid #ffcccc;
+      border-radius: 6px;
+      padding: 0.45rem 1rem;
+      font-size: 0.92rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .remove-btn:hover {
+      background: #fff5f5;
+      border-color: #ff9999;
+    }
+
+    /* ─── Summary ─── */
+    .cart-summary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.6rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      font-size: 1.05rem;
+      color: var(--text-light);
+    }
+
+    .summary-row.total {
+      font-size: 1.32rem;
+      font-weight: 700;
+      color: var(--primary);
+      border-top: 1px solid var(--border);
+      margin-top: 0.6rem;
+      padding-top: 1.1rem;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      margin-top: 1.6rem;
+      padding: 1.15rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1.12rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      min-height: 56px;
+    }
+
+    .checkout-btn:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(195,106,79,0.28);
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 680px) {
+      .cart-item {
+        grid-template-columns: 80px 1fr;
+        grid-template-rows: auto auto;
+        gap: 1rem 0.9rem;
+        padding: 1rem;
+      }
+
+      .item-image {
+        width: 80px;
+        height: 80px;
+      }
+
+      .cart-item > div:last-child {
+        grid-column: 1 / -1;
+        text-align: right;
+        margin-top: 0.4rem;
+      }
+
+      .quantity-control {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 0 0.9rem;
+      }
+
+      .cart-item {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .item-image {
+        margin: 0 auto;
+      }
+
+      .item-info {
+        text-align: center;
+      }
+
+      .quantity-control {
+        margin: 0.8rem auto;
+      }
+
+      .cart-item > div:last-child {
+        text-align: center;
+        margin-top: 1rem;
+      }
+
+      .remove-btn {
+        width: 140px;
+        margin: 0 auto;
+      }
+    }
+    /* ─── Success Modal ─── */
+.modal-overlay {
+  position: fixed;
+  inset:0;
+  background: rgba(10, 61, 42, 0.70); 
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+  max-width: 420px;
+  width: 92%;
+  overflow: hidden;
+  position: relative;
+  transform: scale(0.85);
+  opacity: 0;
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.32s ease;
+}
+
+.modal-overlay.active .modal-content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.modal-inner {
+  padding: 2.5rem 1.8rem;
+  text-align: center;
+  position: relative;
+}
+
+.success-icon {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 1.5rem;
+  background: #e6f4ea;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--success);
+}
+
+.success-icon svg {
+  width: 48px;
+  height: 48px;
+}
+
+.modal-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.modal-text {
+  font-size: 1.05rem;
+  color: var(--text-light);
+  margin-bottom: 1.8rem;
+  line-height: 1.5;
+}
+
+.order-info {
+  background: #f9f6f2;
+  border-radius: 10px;
+  padding: 1.2rem;
+  margin-bottom: 2rem;
+  font-size: 0.98rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.7rem 0;
+}
+
+.info-row strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.btn.track-btn {
+  background: var(--success);
+  color: white;
+}
+
+.btn.track-btn:hover {
+  background: #25714a;
+  transform: translateY(-1px);
+}
+
+.btn.continue-btn {
+  background: var(--primary);
+}
+
+.btn.continue-btn:hover {
+  background: var(--secondary);
+}
+
+.close-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #aaa;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.close-modal:hover {
+  color: var(--text);
+}
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Your Cart</h1>
+  </header>
+
+  <div class="container">
+
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <h2>Your cart is empty</h2>
+      <p>Looks like you haven’t added anything yet.</p>
+      <a href="product.html" class="btn">Continue Shopping</a>
+    </div>
+
+    <div class="cart-list" id="cartItems"></div>
+
+    <div class="cart-summary" id="summary" style="display: none;">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span id="subtotal">$0</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total</span>
+        <span id="total">$0</span>
+      </div>
+      <button class="checkout-btn" onclick="
+showSuccessModal();">Proceed to Checkout</button>
+    </div>
+
+  </div>
+
+<!-- Success Modal -->
+<div id="successModal" class="modal-overlay" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-inner">
+      
+      <!-- Success Icon -->
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      
+      <h2 class="modal-title">Order Placed Successfully!</h2>
+      
+      <p class="modal-text">
+        Thank you for shopping with us 🎉<br>
+        Your order has been confirmed.
+      </p>
+      
+      <div class="order-info">
+        <div class="info-row">
+          <span>Total Amount</span>
+          <strong id="modalTotal">$0</strong>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <a href="product.html" class="btn continue-btn">
+          Continue Shopping
+        </a>
+      </div>
+      
+      <button class="close-modal" onclick="closeSuccessModal()" aria-label="Close">
+        ×
+      </button>
+      
+    </div>
+  </div>
+</div>
+
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartItemsEl = document.getElementById('cartItems');
+    const emptyStateEl = document.getElementById('emptyState');
+    const summaryEl   = document.getElementById('summary');
+    const subtotalEl  = document.getElementById('subtotal');
+    const totalEl     = document.getElementById('total');
+
+    function renderCart() {
+      cartItemsEl.innerHTML = '';
+      let subtotal = 0;
+
+      if (cart.length === 0) {
+        emptyStateEl.style.display = 'block';
+        summaryEl.style.display = 'none';
+        return;
+      }
+
+      emptyStateEl.style.display = 'none';
+      summaryEl.style.display = 'block';
+
+      cart.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <img src="${item.images[0]}" 
+               alt="${item.title}" 
+               class="item-image"
+               loading="lazy"
+               onerror="this.src='fallback.svg'">
+          <div class="item-info">
+            <div class="item-title">${item.title}</div>
+            <div class="item-price">$${item.price.toLocaleString()}</div>
+            <div class="quantity-control">
+              <button class="quantity-btn" onclick="changeQuantity(${index}, -1)" ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
+              <span class="quantity-display">${item.quantity}</span>
+              <button class="quantity-btn" onclick="changeQuantity(${index}, 1)">+</button>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:1.15rem; font-weight:700; margin-bottom:0.9rem; color:var(--primary);">
+              $${itemTotal.toLocaleString()}
+            </div>
+            <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+          </div>
+        `;
+        cartItemsEl.appendChild(div);
+      });
+
+      subtotalEl.textContent = `$${subtotal.toLocaleString()}`;
+      totalEl.textContent    = `$${subtotal.toLocaleString()}`;
+    }
+
+    function changeQuantity(index, delta) {
+      let qty = cart[index].quantity + delta;
+      if (qty < 1) qty = 1;
+      cart[index].quantity = qty;
+      saveAndRefresh();
+    }
+
+    function removeItem(index) {
+      /*if (!confirm("Remove this item?")) return;*/
+      cart.splice(index, 1);
+      saveAndRefresh();
+    }
+
+    function saveAndRefresh() {
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    renderCart();
+    
+    function showSuccessModal() {
+  // You can pass real data here if you have it
+  const total = document.getElementById('total')?.textContent || '$0';
+  document.getElementById('modalTotal').textContent = total;
+  
+  const modal = document.getElementById('successModal');
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('active'), 10);
+  
+  // Optional: clear cart after success
+  // cart = [];
+  // localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+function closeSuccessModal() {
+  const modal = document.getElementById('successModal');
+  modal.classList.remove('active');
+  setTimeout(() => {
+    modal.style.display = 'none';
+  }, 320);
+}
+
+  </script>
+</body>
+</html>
